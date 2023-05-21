@@ -74,20 +74,20 @@ async function run() {
     });
 
     // update route
-    // app.patch("/updateToy/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: new ObjectId(id) };
-    //   const body = req.body;
-    //   const updateToy = {
-    //     $set: {
-    //       price: body.price,
-    //       quantity: body.quantity,
-    //       description: body.description,
-    //     },
-    //   };
-    //   const result = await toyCollection.updateOne(filter, updateToy);
-    //   res.send(result);
-    // });
+    app.patch("/updateToy/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const body = req.body;
+      const updateToy = {
+        $set: {
+          price: body.price,
+          quantity: body.quantity,
+          description: body.description,
+        },
+      };
+      const result = await toyCollection.updateOne(filter, updateToy);
+      res.send(result);
+    });
 
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
