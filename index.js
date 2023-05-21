@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const toyCollection = client.db("toysMarket").collection("toys");
 
@@ -32,6 +32,7 @@ async function run() {
       const alltoys = await toyCollection.find(query).toArray();
       res.send(alltoys);
     });
+
     app.get("/alltoys/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -48,12 +49,45 @@ async function run() {
       res.send(result);
     });
 
+    // search route
+    const indexKey = { title: 1, category: 1 };
+    const indexOption = { name: "titleCategory" };
+    const result = await toyCollection.createIndex(indexKey, indexOption);
+    app.get("/searchToy/:text", async (req, res) => {
+      const searchText = req.params.text;
+      const result = await toyCollection
+        .find({
+          $or: [
+            { toyName: { $regex: searchText, $options: "i" } },
+            { category: { $regex: searchText, $options: "i" } },
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
+
     app.post("/toys", async (req, res) => {
       const toys = req.body;
       console.log(toys);
-      const result = await toyCollection.insertOne(toys);
+      const result = await toyCollection.insertOne(toys).limit(20);
       res.send(result);
     });
+
+    // update route
+    // app.patch("/updateToy/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const filter = { _id: new ObjectId(id) };
+    //   const body = req.body;
+    //   const updateToy = {
+    //     $set: {
+    //       price: body.price,
+    //       quantity: body.quantity,
+    //       description: body.description,
+    //     },
+    //   };
+    //   const result = await toyCollection.updateOne(filter, updateToy);
+    //   res.send(result);
+    // });
 
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
